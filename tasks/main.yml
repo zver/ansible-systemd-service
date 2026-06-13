@@ -28,7 +28,9 @@
         owner: root
 
 - name: Create service file with default template
-  when: not (systemd_service_content or systemd_service_file or systemd_service_template)
+  when:
+    - not (systemd_service_content or systemd_service_file or systemd_service_template)
+    - not (systemd_service_docker_compose_files or systemd_service_docker_compose_templates)
   copy:
     content: "{{ systemd_service_template_default }}"
     dest: /etc/systemd/system/{{ systemd_service_name }}.service
