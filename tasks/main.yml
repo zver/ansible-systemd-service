@@ -1,0 +1,169 @@
+---
+- name: Create service file for {{ systemd_service_name }}
+  when: systemd_service_content or systemd_service_file or systemd_service_template
+  notify: Restart systemd service
+  block:
+    - name: Make service file with content
+      when: systemd_service_content
+      copy:
+        content: "{{ systemd_service_content }}"
+        dest: /etc/systemd/system/{{ systemd_service_name }}.service
+        mode: "0644"
+        owner: root
+        group: root
+    - name: Create service file from template file
+      when: systemd_service_template
+      template:
+        src: "{{ systemd_service_template }}"
+        dest: /etc/systemd/system/{{ systemd_service_name }}.service
+        mode: "0644"
+        owner: root
+        group: root
+    - name: Copy service file
+      when: systemd_service_file
+      copy:
+        src: "{{ systemd_service_file }}"
+        dest: /etc/systemd/system/{{ systemd_service_name }}.service
+        mode: "0644"
+        owner: root
+
+- name: Create service file with default template
+  when: not (systemd_service_content or systemd_service_file or systemd_service_template)
+  copy:
+    content: "{{ systemd_service_template_default }}"
+    dest: /etc/systemd/system/{{ systemd_service_name }}.service
+    mode: "0644"
+    owner: root
+    group: root
+  notify: Restart systemd service
+
+- name: Create directories
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    mode: "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  loop: "{{ systemd_service_dirs }}"
+
+
+- name: Check directories
+  stat:
+    path: "{{ item.dest | dirname }}"
+  loop: "{{ systemd_service_templates + systemd_service_files }}"
+  register: dir_stat
+
+- name: Create missing directories only
+  file:
+    path: "{{ item.item.dest | dirname }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ item.item.owner | default(omit) }}"
+    group: "{{ item.item.group | default(omit) }}"
+  loop: "{{ dir_stat.results }}"
+  when:
+    - systemd_service_auto_create_dirs
+    - not item.stat.exists
+
+
+- name: Make files from templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  loop: "{{ systemd_service_templates }}"
+  notify: Restart systemd service
+
+
+- name: Copy local files
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  loop: "{{ systemd_service_files }}"
+  when: item.src is not match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
+  notify: Restart systemd service
+
+- name: Download remote files
+  get_url:
+    url: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  loop: "{{ systemd_service_files }}"
+  when: item.src is match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
+  notify: Restart systemd service
+
+
+- name: Prepare for docker
+  when: systemd_service_docker_compose_files or systemd_service_docker_compose_templates
+  notify: Restart systemd service
+  block:
+    - name: Create docker base dir
+      file:
+        path: "{{ systemd_service_docker_base_dir }}"
+        state: directory
+        mode: "0755"
+        owner: root
+        group: root
+    - name: Create docker compose file from content
+      copy:
+        dest: "{{ systemd_service_docker_base_dir }}/{{ systemd_service_name }}/docker-compose.yml"
+        mode: "0644"
+        owner: root
+        group: root
+        content: "{{ systemd_service_docker_compose_content }}"
+      when: systemd_service_docker_compose_content
+    - name: Create docker compose files from templates
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ systemd_service_docker_base_dir }}/{{ systemd_service_name }}/{{ item.src | basename | regex_replace('\\.j2$', '') }}"
+        mode: "0644"
+        owner: root
+        group: root
+      loop: "{{ systemd_service_docker_compose_templates }}"
+      when: not systemd_service_docker_compose_content
+
+
+    - name: Copy local docker compose files
+      copy:
+        src: "{{ item }}"
+        dest: "{{ systemd_service_docker_base_dir }}/{{ systemd_service_name }}/{{ item | basename }}"
+        mode: "0644"
+        owner: root
+        group: root
+      loop: "{{ systemd_service_docker_compose_files }}"
+      when:
+        - not systemd_service_docker_compose_content
+        - item is not match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
+
+    - name: Download remote docker compose files
+      get_url:
+        url: "{{ item }}"
+        dest: "{{ systemd_service_docker_base_dir }}/{{ systemd_service_name }}/{{ item | basename }}"
+        mode: "0644"
+        owner: root
+        group: root
+      loop: "{{ systemd_service_docker_compose_files }}"
+      when:
+        - not systemd_service_docker_compose_content
+        - item is match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
+
+
+    - name: Make systemd service file for docker project
+      copy:
+        content: "{{ systemd_service_docker_service_template_default }}"
+        mode: "0644"
+        dest: /etc/systemd/system/{{ systemd_service_name }}.service
+      when: not systemd_service_content and not systemd_service_file and not systemd_service_template
+
+- name: Enable and start service
+  systemd:
+    name: "{{ systemd_service_name }}"
+    enabled: true
+    state: started
