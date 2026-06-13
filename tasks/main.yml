@@ -1,7 +1,7 @@
 ---
 - name: Create service file for {{ systemd_service_name }}
   when: systemd_service_content or systemd_service_file or systemd_service_template
-  notify: Restart systemd service
+  notify: Restart systemd service {{ systemd_service_name }}
   block:
     - name: Make service file with content
       when: systemd_service_content
@@ -76,7 +76,7 @@
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"
   loop: "{{ systemd_service_templates }}"
-  notify: Restart systemd service
+  notify: Restart systemd service {{ systemd_service_name }}
 
 
 - name: Copy local files
@@ -88,7 +88,7 @@
     group: "{{ item.group }}"
   loop: "{{ systemd_service_files }}"
   when: item.src is not match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
-  notify: Restart systemd service
+  notify: Restart systemd service {{ systemd_service_name }}
 
 - name: Download remote files
   get_url:
@@ -99,12 +99,12 @@
     group: "{{ item.group }}"
   loop: "{{ systemd_service_files }}"
   when: item.src is match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
-  notify: Restart systemd service
+  notify: Restart systemd service {{ systemd_service_name }}
 
 
 - name: Prepare for docker
   when: systemd_service_docker_compose_files or systemd_service_docker_compose_templates
-  notify: Restart systemd service
+  notify: Restart systemd service {{ systemd_service_name }}
   block:
     - name: Create docker base dir
       file:
