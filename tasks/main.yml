@@ -11,6 +11,7 @@
         mode: "0644"
         owner: root
         group: root
+
     - name: Create service file from template file
       when: systemd_service_template
       template:
@@ -19,6 +20,7 @@
         mode: "0644"
         owner: root
         group: root
+
     - name: Copy service file
       when: systemd_service_file
       copy:
@@ -26,6 +28,7 @@
         dest: /etc/systemd/system/{{ systemd_service_name }}.service
         mode: "0644"
         owner: root
+
 
 - name: Create service file with default template
   when:
@@ -39,13 +42,14 @@
     group: root
   notify: Restart systemd service
 
+
 - name: Create directories
   file:
-    path: "{{ item.path }}"
+    path: "{{ item.path | default(item) }}"
     state: directory
-    mode: "{{ item.mode }}"
-    owner: "{{ item.owner }}"
-    group: "{{ item.group }}"
+    mode: "{{ item.mode | default('0755') }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
   loop: "{{ systemd_service_dirs }}"
 
 
@@ -54,6 +58,7 @@
     path: "{{ item.dest | dirname }}"
   loop: "{{ systemd_service_templates + systemd_service_files }}"
   register: dir_stat
+
 
 - name: Create missing directories only
   file:
@@ -90,6 +95,7 @@
   when: item.src is not match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
   notify: Restart systemd service {{ systemd_service_name }}
 
+
 - name: Download remote files
   get_url:
     url: "{{ item.src }}"
@@ -113,6 +119,7 @@
         mode: "0755"
         owner: root
         group: root
+
     - name: Create docker compose file from content
       copy:
         dest: "{{ systemd_service_docker_base_dir }}/{{ systemd_service_name }}/docker-compose.yml"
@@ -121,6 +128,7 @@
         group: root
         content: "{{ systemd_service_docker_compose_content }}"
       when: systemd_service_docker_compose_content
+
     - name: Create docker compose files from templates
       template:
         src: "{{ item.src }}"
@@ -130,7 +138,6 @@
         group: root
       loop: "{{ systemd_service_docker_compose_templates }}"
       when: not systemd_service_docker_compose_content
-
 
     - name: Copy local docker compose files
       copy:
@@ -156,13 +163,13 @@
         - not systemd_service_docker_compose_content
         - item is match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
 
-
     - name: Make systemd service file for docker project
       copy:
         content: "{{ systemd_service_docker_service_template_default }}"
         mode: "0644"
         dest: /etc/systemd/system/{{ systemd_service_name }}.service
       when: not systemd_service_content and not systemd_service_file and not systemd_service_template
+
 
 - name: Enable and start service
   systemd:
