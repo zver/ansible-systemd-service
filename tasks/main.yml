@@ -1,4 +1,11 @@
 ---
+- name: Install apt packages
+  apt:
+    name: "{{ systemd_service_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 86400
+
 - name: Create service file for {{ systemd_service_name }}
   when: systemd_service_content or systemd_service_file or systemd_service_template
   notify: Restart systemd service {{ systemd_service_name }}
