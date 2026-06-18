@@ -48,7 +48,7 @@
     mode: "0644"
     owner: root
     group: root
-  notify: Restart systemd service
+  notify: Restart systemd service {{ systemd_service_name }}
 
 
 - name: Create directories
