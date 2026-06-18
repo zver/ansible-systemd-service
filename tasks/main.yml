@@ -32,6 +32,7 @@
 
 - name: Create service file with default template
   when:
+    - systemd_service_use_template_default
     - not (systemd_service_content or systemd_service_file or systemd_service_template)
     - not (systemd_service_docker_compose_files or systemd_service_docker_compose_templates)
   copy:
@@ -168,7 +169,10 @@
         content: "{{ systemd_service_docker_service_template_default }}"
         mode: "0644"
         dest: /etc/systemd/system/{{ systemd_service_name }}.service
-      when: not systemd_service_content and not systemd_service_file and not systemd_service_template
+      when:
+        - not systemd_service_content
+        - not systemd_service_file
+        - not systemd_service_template
 
 
 - name: Enable and start service
