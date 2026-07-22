@@ -139,8 +139,8 @@
 
     - name: Create docker compose files from templates
       template:
-        src: "{{ item.src }}"
-        dest: "{{ systemd_service_docker_base_dir }}/{{ systemd_service_name }}/{{ item.src | basename | regex_replace('\\.j2$', '') }}"
+        src: "{{ item }}"
+        dest: "{{ systemd_service_docker_base_dir }}/{{ systemd_service_name }}/{{ item | basename | regex_replace('\\.j2$', '') }}"
         mode: "0644"
         owner: root
         group: root
