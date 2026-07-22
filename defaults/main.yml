@@ -30,6 +30,7 @@ systemd_service_docker_compose_templates: []
 systemd_service_docker_compose_files: []
 
 systemd_service_docker_base_dir: /opt
+systemd_service_docker_volume_base_dir: "{{ systemd_service_docker_base_dir }}/{{ systemd_service_name }}/volumes"
 systemd_service_docker_service_template_default: |
   [Unit]
   Description={{ systemd_service_name }} in docker container
