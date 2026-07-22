@@ -88,14 +88,32 @@
         enabled: true
 
 # Directories
+- name: Normalize systemd_service_dirs (expand list-type paths into separate entries)
+  set_fact:
+    systemd_service_dirs_flat: "{{ systemd_service_dirs_flat_raw | from_yaml }}"
+  vars:
+    systemd_service_dirs_flat_raw: |
+      {% for entry in systemd_service_dirs %}
+      {% set raw_path = entry.path | default(entry) %}
+      {% set path_list = [raw_path] if raw_path is string else raw_path %}
+      {% for p in path_list %}
+      - path: "{{ p }}"
+        mode: "{{ entry.mode | default('0755') }}"
+        owner: "{{ entry.owner | default('root') }}"
+        group: "{{ entry.group | default('root') }}"
+      {% endfor %}
+      {% endfor %}
+
 - name: Create directories
   file:
-    path: "{{ item.path | default(item) }}"
+    path: "{{ item.path }}"
     state: directory
-    mode: "{{ item.mode | default('0755') }}"
-    owner: "{{ item.owner | default('root') }}"
-    group: "{{ item.group | default('root') }}"
-  loop: "{{ systemd_service_dirs }}"
+    mode: "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  loop: "{{ systemd_service_dirs_flat }}"
+  loop_control:
+    label: "{{ item.path }}"
 
 - name: Check directories
   stat:
@@ -251,7 +269,7 @@
     # Docker volume dirs
     - name: Docker volume dirs
       file:
-        path: "{{ (systemd_service_docker_volume_base_dir, item.path) | path_join }}"
+        path: "{{ (systemd_service_docker_volume_base_dir, item.path | default(item)) | path_join }}"
         state: directory
         mode: "{{ item.mode | default('0755') }}"
         owner: "{{ item.owner | default('root') }}"
