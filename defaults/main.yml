@@ -49,5 +49,6 @@ systemd_service_docker_service_template_default: |
   Restart=on-failure
   [Install]
   WantedBy=default.target
+systemd_service_docker_compose_volume_dirs: []
 
 systemd_service_packages: []
