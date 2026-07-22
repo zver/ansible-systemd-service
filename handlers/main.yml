@@ -7,3 +7,9 @@
     name: "{{ systemd_service_name }}"
     daemon_reload: true
     state: restarted
+
+- name: Restart systemd timer {{ systemd_service_name }}
+  systemd:
+    name: "{{ systemd_service_name }}.timer"
+    daemon_reload: true
+    state: restarted

@@ -53,7 +53,7 @@
 # Timer file
 - name: Create timer file for {{ systemd_service_name }}
   when: systemd_service_timer_content or systemd_service_timer_file or systemd_service_timer_template
-  notify: Restart systemd service {{ systemd_service_name }}
+  notify: Restart systemd timer {{ systemd_service_name }}
   block:
     - name: Make timer file with content
       when: systemd_service_timer_content
@@ -73,7 +73,7 @@
         owner: root
         group: root
 
-    - name: Copy service file
+    - name: Copy timer file
       when: systemd_service_timer_file
       copy:
         src: "{{ systemd_service_timer_file }}"
@@ -81,6 +81,11 @@
         mode: "0644"
         owner: root
         group: root
+
+    - name: Ensure timer is activated
+      systemd:
+        name: "{{ systemd_service_name }}.timer"
+        enabled: true
 
 # Directories
 - name: Create directories
