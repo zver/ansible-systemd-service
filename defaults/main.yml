@@ -20,6 +20,10 @@ systemd_service_template_default: |
         [Install]
         WantedBy=multi-user.target
 
+systemd_service_timer_content:
+systemd_service_timer_file:
+systemd_service_timer_template:
+
 systemd_service_files: []
 systemd_service_auto_create_dirs: false
 systemd_service_templates: []
@@ -28,6 +32,10 @@ systemd_service_dirs: []
 systemd_service_docker_compose_content:
 systemd_service_docker_compose_templates: []
 systemd_service_docker_compose_files: []
+
+systemd_service_docker_compose_env_content:
+systemd_service_docker_compose_env_template:
+systemd_service_docker_compose_env_file:
 
 systemd_service_docker_base_dir: /opt
 systemd_service_docker_volume_base_dir: "{{ systemd_service_docker_base_dir }}/{{ systemd_service_name }}/volumes"
