@@ -6,6 +6,7 @@
     update_cache: true
     cache_valid_time: 86400
 
+# Service file
 - name: Create service file for {{ systemd_service_name }}
   when: systemd_service_content or systemd_service_file or systemd_service_template
   notify: Restart systemd service {{ systemd_service_name }}
@@ -36,7 +37,6 @@
         mode: "0644"
         owner: root
 
-
 - name: Create service file with default template
   when:
     - systemd_service_use_template_default
@@ -50,7 +50,39 @@
     group: root
   notify: Restart systemd service {{ systemd_service_name }}
 
+# Timer file
+- name: Create timer file for {{ systemd_service_name }}
+  when: systemd_service_timer_content or systemd_service_timer_file or systemd_service_timer_template
+  notify: Restart systemd service {{ systemd_service_name }}
+  block:
+    - name: Make timer file with content
+      when: systemd_service_timer_content
+      copy:
+        content: "{{ systemd_service_timer_content }}"
+        dest: /etc/systemd/system/{{ systemd_service_name }}.timer
+        mode: "0644"
+        owner: root
+        group: root
 
+    - name: Create timer file from template file
+      when: systemd_service_timer_template
+      template:
+        src: "{{ systemd_service_timer_template }}"
+        dest: /etc/systemd/system/{{ systemd_service_name }}.timer
+        mode: "0644"
+        owner: root
+        group: root
+
+    - name: Copy service file
+      when: systemd_service_timer_file
+      copy:
+        src: "{{ systemd_service_timer_file }}"
+        dest: /etc/systemd/system/{{ systemd_service_name }}.timer
+        mode: "0644"
+        owner: root
+        group: root
+
+# Directories
 - name: Create directories
   file:
     path: "{{ item.path | default(item) }}"
@@ -60,13 +92,11 @@
     group: "{{ item.group | default('root') }}"
   loop: "{{ systemd_service_dirs }}"
 
-
 - name: Check directories
   stat:
     path: "{{ item.dest | dirname }}"
   loop: "{{ systemd_service_templates + systemd_service_files }}"
   register: dir_stat
-
 
 - name: Create missing directories only
   file:
@@ -80,7 +110,7 @@
     - systemd_service_auto_create_dirs
     - not item.stat.exists
 
-
+# Files
 - name: Make files from templates
   template:
     src: "{{ item.src }}"
@@ -90,7 +120,6 @@
     group: "{{ item.group }}"
   loop: "{{ systemd_service_templates }}"
   notify: Restart systemd service {{ systemd_service_name }}
-
 
 - name: Copy local files
   copy:
@@ -103,7 +132,6 @@
   when: item.src is not match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
   notify: Restart systemd service {{ systemd_service_name }}
 
-
 - name: Download remote files
   get_url:
     url: "{{ item.src }}"
@@ -115,7 +143,7 @@
   when: item.src is match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
   notify: Restart systemd service {{ systemd_service_name }}
 
-
+# Docker
 - name: Prepare for docker
   when: systemd_service_docker_compose_files or systemd_service_docker_compose_templates
   notify: Restart systemd service {{ systemd_service_name }}
