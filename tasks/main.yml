@@ -90,7 +90,7 @@
 # Directories
 - name: Normalize systemd_service_dirs (expand list-type paths into separate entries)
   set_fact:
-    systemd_service_dirs_flat: "{{ systemd_service_dirs_flat_raw | from_yaml }}"
+    systemd_service_dirs_flat: "{{ systemd_service_dirs_flat_raw | from_yaml | default([], true) }}"
   vars:
     systemd_service_dirs_flat_raw: |
       {% for entry in systemd_service_dirs %}
