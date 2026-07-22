@@ -251,7 +251,7 @@
     # Docker volume dirs
     - name: Docker volume dirs
       file:
-        path: "{{ systemd_service_docker_volume_base_dir }}/{{ item.path }}"
+        path: "{{ (systemd_service_docker_volume_base_dir, item.path) | path_join }}"
         state: directory
         mode: "{{ item.mode | default('0755') }}"
         owner: "{{ item.owner | default('root') }}"
