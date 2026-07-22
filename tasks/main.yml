@@ -171,6 +171,46 @@
         - not systemd_service_docker_compose_content
         - item is match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
 
+    - name: Create docker env file from content
+      copy:
+        dest: "{{ systemd_service_docker_base_dir }}/{{ systemd_service_name }}/.env"
+        mode: "0644"
+        owner: root
+        group: root
+        content: "{{ systemd_service_docker_compose_env_content }}"
+      when: systemd_service_docker_compose_env_content
+
+    - name: Create docker compose env file from template
+      template:
+        src: "{{ systemd_service_docker_compose_env_template }}"
+        dest: "{{ systemd_service_docker_base_dir }}/{{ systemd_service_name }}/.env"
+        mode: "0644"
+        owner: root
+        group: root
+      when: not systemd_service_docker_compose_env_content
+
+    - name: Copy local docker compose env file
+      copy:
+        src: "{{ systemd_service_docker_compose_env_file }}"
+        dest: "{{ systemd_service_docker_base_dir }}/{{ systemd_service_name }}/.env"
+        mode: "0644"
+        owner: root
+        group: root
+      when:
+        - not systemd_service_docker_compose_content
+        - systemd_service_docker_compose_env_file is not match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
+
+    - name: Download remote docker compose env file
+      get_url:
+        url: "{{ systemd_service_docker_compose_env_file }}"
+        dest: "{{ systemd_service_docker_base_dir }}/{{ systemd_service_name }}/.env"
+        mode: "0644"
+        owner: root
+        group: root
+      when:
+        - not systemd_service_docker_compose_content
+        - systemd_service_docker_compose_env_file is match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
+
     - name: Make systemd service file for docker project
       copy:
         content: "{{ systemd_service_docker_service_template_default }}"
