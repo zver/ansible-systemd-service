@@ -251,11 +251,11 @@
     # Docker volume dirs
     - name: Docker volume dirs
       file:
-        path: "{{ systemd_service_docker_volume_base_dir }}/{{ item }}"
+        path: "{{ systemd_service_docker_volume_base_dir }}/{{ item.path }}"
         state: directory
-        mode: "0755"
-        owner: root
-        group: root
+        mode: "{{ item.mode | default('0755') }}"
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
       loop: "{{ systemd_service_docker_compose_volume_dirs }}"
 
     # Docker systemd service file
