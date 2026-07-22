@@ -232,7 +232,7 @@
         owner: root
         group: root
       when:
-        - not systemd_service_docker_compose_content
+        - not systemd_service_docker_compose_env_content
         - systemd_service_docker_compose_env_file is not match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
 
     - name: Download remote docker compose env file
