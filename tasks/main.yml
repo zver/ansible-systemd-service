@@ -120,9 +120,9 @@
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    mode: "{{ item.mode }}"
-    owner: "{{ item.owner }}"
-    group: "{{ item.group }}"
+    mode: "{{ item.mode | default('0644') }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
   loop: "{{ systemd_service_templates }}"
   notify: Restart systemd service {{ systemd_service_name }}
 
@@ -130,9 +130,9 @@
   copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    mode: "{{ item.mode }}"
-    owner: "{{ item.owner }}"
-    group: "{{ item.group }}"
+    mode: "{{ item.mode | default('0644') }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
   loop: "{{ systemd_service_files }}"
   when: item.src is not match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
   notify: Restart systemd service {{ systemd_service_name }}
@@ -141,9 +141,9 @@
   get_url:
     url: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    mode: "{{ item.mode }}"
-    owner: "{{ item.owner }}"
-    group: "{{ item.group }}"
+    mode: "{{ item.mode | default('0644') }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
   loop: "{{ systemd_service_files }}"
   when: item.src is match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
   notify: Restart systemd service {{ systemd_service_name }}
