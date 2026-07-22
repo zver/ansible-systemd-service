@@ -232,6 +232,7 @@
         owner: root
         group: root
       when:
+        - systemd_service_docker_compose_env_file
         - not systemd_service_docker_compose_env_content
         - systemd_service_docker_compose_env_file is not match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
 
@@ -243,6 +244,7 @@
         owner: root
         group: root
       when:
+        - systemd_service_docker_compose_env_file
         - not systemd_service_docker_compose_content
         - systemd_service_docker_compose_env_file is match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
 
