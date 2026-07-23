@@ -42,7 +42,8 @@ systemd_service_docker_volume_base_dir: "{{ systemd_service_docker_base_dir }}/{
 systemd_service_docker_service_template_default: |
   [Unit]
   Description={{ systemd_service_name }} in docker container
-  After=network.target
+  Requires=docker.service
+  After=docker.service
   [Service]
   ExecStart=/usr/bin/docker compose -f /opt/{{ systemd_service_name }}/docker-compose.yml up
   ExecStop=/usr/bin/docker compose -f /opt/{{ systemd_service_name }}/docker-compose.yml down
