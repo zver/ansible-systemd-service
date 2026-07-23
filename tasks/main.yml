@@ -171,10 +171,11 @@
   when: systemd_service_docker_compose_files or systemd_service_docker_compose_templates
   notify: Restart systemd service {{ systemd_service_name }}
   block:
-    - name: Create docker base dir
+    - name: Create docker dir
       file:
-        path: "{{ systemd_service_docker_base_dir }}"
+        path: "{{ systemd_service_docker_base_dir }}/{{ systemd_service_name }}"
         state: directory
+        recurse: true
         mode: "0755"
         owner: root
         group: root
@@ -240,7 +241,9 @@
         mode: "0640"
         owner: root
         group: root
-      when: not systemd_service_docker_compose_env_content
+      when:
+        - systemd_service_docker_compose_env_template
+        - not systemd_service_docker_compose_env_content
 
     - name: Copy local docker compose env file
       copy:
