@@ -277,7 +277,7 @@
         mode: "{{ item.mode | default('0755') }}"
         owner: "{{ item.owner | default('root') }}"
         group: "{{ item.group | default('root') }}"
-      loop: "{{ systemd_service_docker_compose_volume_dirs }}"
+      loop: "{{ systemd_service_docker_volume_dirs }}"
 
     # Docker systemd service file
     - name: Make systemd service file for docker project
