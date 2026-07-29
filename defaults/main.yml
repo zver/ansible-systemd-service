@@ -45,7 +45,7 @@ systemd_service_docker_service_template_default: |
   Requires=docker.service
   After=docker.service
   [Service]
-  ExecStart=/usr/bin/docker compose -f /opt/{{ systemd_service_name }}/docker-compose.yml up
+  ExecStart=/usr/bin/docker compose -f /opt/{{ systemd_service_name }}/docker-compose.yml up --abort-on-container-exit
   ExecStop=/usr/bin/docker compose -f /opt/{{ systemd_service_name }}/docker-compose.yml down
   Restart=on-failure
   [Install]
