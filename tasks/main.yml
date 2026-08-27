@@ -296,3 +296,7 @@
     name: "{{ systemd_service_name }}"
     enabled: true
     state: started
+  when:
+    - not systemd_service_timer_file
+    - not systemd_service_timer_content
+    - not systemd_service_timer_template
