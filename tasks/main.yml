@@ -1,5 +1,7 @@
 ---
 - name: Install apt packages
+  when:
+    - systemd_service_packages
   apt:
     name: "{{ systemd_service_packages }}"
     state: present
