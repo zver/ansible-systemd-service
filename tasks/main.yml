@@ -135,6 +135,19 @@
     - systemd_service_auto_create_dirs
     - not item.stat.exists
 
+
+# Symlinks
+- name: Make symlinks
+  file:
+    dest: "{{ item.dest }}"
+    src: "{{ item.src }}"
+    state: link
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0644') }}"
+  loop: "{{ systemd_service_symlinks }}"
+
+
 # Files
 - name: Make files from templates
   template:
