@@ -24,6 +24,7 @@ systemd_service_timer_content:
 systemd_service_timer_file:
 systemd_service_timer_template:
 
+systemd_service_symlinks: []
 systemd_service_files: []
 systemd_service_auto_create_dirs: false
 systemd_service_templates: []
