@@ -55,7 +55,7 @@
 # Timer file
 - name: Create timer file for {{ systemd_service_name }}
   when: systemd_service_timer_content or systemd_service_timer_file or systemd_service_timer_template
-  notify: Restart systemd timer {{ systemd_service_name }}
+  notify: Start or stop systemd timer {{ systemd_service_name }}
   block:
     - name: Make timer file with content
       when: systemd_service_timer_content
