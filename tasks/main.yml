@@ -84,10 +84,10 @@
         owner: root
         group: root
 
-    - name: Ensure timer is activated
+    - name: Ensure timer is activated/disabled
       systemd:
         name: "{{ systemd_service_name }}.timer"
-        enabled: true
+        enabled: "{{ true if systemd_service_state == 'started' else false }}"
 
 # Directories
 - name: Normalize systemd_service_dirs (expand list-type paths into separate entries)
@@ -306,12 +306,11 @@
         - not systemd_service_file
         - not systemd_service_template
 
-
 - name: Enable and start service
   systemd:
     name: "{{ systemd_service_name }}"
     enabled: true
-    state: started
+    state: {{ systemd_service_state }}
   when:
     - not systemd_service_timer_file
     - not systemd_service_timer_content
