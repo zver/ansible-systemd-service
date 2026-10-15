@@ -136,6 +136,20 @@
     - not item.stat.exists
 
 
+# Sync dir content
+- name: Sync dirs content
+  synchronize:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    recursive: true
+    delete: "{{ item.delete | default(false) }}"
+    rsync_opts:
+      - "--chmod=F{{ item.file_chmod | default('644') }},D{{ item.dir_chmod | default('755') }}"
+      - "--chown={{ item.owner | default('root') }}:{{ item.group | default('root') }}"
+  loop: "{{ systemd_service_sync_dirs }}"
+  notify: Restart systemd service {{ systemd_service_name }}
+
+
 # Symlinks
 - name: Make symlinks
   file:

@@ -31,6 +31,7 @@ systemd_service_files: []
 systemd_service_auto_create_dirs: false
 systemd_service_templates: []
 systemd_service_dirs: []
+systemd_service_sync_dirs: []
 
 systemd_service_docker_compose_content:
 systemd_service_docker_compose_templates: []
