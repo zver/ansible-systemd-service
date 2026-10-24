@@ -120,7 +120,7 @@
 - name: Check directories
   stat:
     path: "{{ item.dest | dirname }}"
-  loop: "{{ systemd_service_templates + systemd_service_files }}"
+  loop: "{{ systemd_service_templates + systemd_service_files + (systemd_service_sync_dirs | map(attribute='dest') | list) }}"
   register: dir_stat
 
 - name: Create missing directories only
