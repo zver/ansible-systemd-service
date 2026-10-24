@@ -123,20 +123,32 @@
   loop: "{{ systemd_service_templates + systemd_service_files }}"
   register: dir_stat1
 
-- name: Check directories 2
-  stat:
-    path: "{{ item.dest }}"
-  loop: "{{ systemd_service_sync_dirs }}"
-  register: dir_stat2
-
-- name: Create missing directories only
+- name: Create missing directories only 1
   file:
     path: "{{ item.item.dest | dirname }}"
     state: directory
     mode: "0755"
     owner: "{{ item.item.owner | default(omit) }}"
     group: "{{ item.item.group | default(omit) }}"
-  loop: "{{ dir_stat1.results + dir_stat2.results }}"
+  loop: "{{ dir_stat1.results }}"
+  when:
+    - systemd_service_auto_create_dirs
+    - not item.stat.exists
+
+- name: Check directories 2
+  stat:
+    path: "{{ item.dest }}"
+  loop: "{{ systemd_service_sync_dirs }}"
+  register: dir_stat2
+
+- name: Create missing directories only 2
+  file:
+    path: "{{ item.item.dest }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ item.item.owner | default(omit) }}"
+    group: "{{ item.item.group | default(omit) }}"
+  loop: "{{ dir_stat2.results }}"
   when:
     - systemd_service_auto_create_dirs
     - not item.stat.exists
