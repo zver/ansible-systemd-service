@@ -87,7 +87,7 @@
     - name: Ensure timer is activated/disabled
       systemd:
         name: "{{ systemd_service_name }}.timer"
-        enabled: "{{ true if systemd_service_state == 'started' else false }}"
+        enabled: "{{ true if systemd_service_state in ['started', 'enabled'] else false }}"
 
 # Directories
 - name: Normalize systemd_service_dirs (expand list-type paths into separate entries)
