@@ -200,7 +200,7 @@
     owner: "{{ item.owner | default('root') }}"
     group: "{{ item.group | default('root') }}"
   loop: "{{ systemd_service_files }}"
-  when: item.src is not match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
+  when: item.src and item.src is not match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
   notify: Restart systemd service {{ systemd_service_name }}
 
 - name: Make files with content
