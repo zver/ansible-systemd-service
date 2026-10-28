@@ -194,14 +194,24 @@
 
 - name: Copy local files
   copy:
-    src: "{{ item.src | default(omit) }}"
+    src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    content: "{{ item.content | default(omit) }}"
     mode: "{{ item.mode | default('0644') }}"
     owner: "{{ item.owner | default('root') }}"
     group: "{{ item.group | default('root') }}"
   loop: "{{ systemd_service_files }}"
   when: item.src is not match('^[a-zA-Z][a-zA-Z0-9+.-]*://')
+  notify: Restart systemd service {{ systemd_service_name }}
+
+- name: Make files with content
+  copy:
+    content: "{{ item.content }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode | default('0644') }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+  loop: "{{ systemd_service_files }}"
+  when: item.content
   notify: Restart systemd service {{ systemd_service_name }}
 
 - name: Download remote files
