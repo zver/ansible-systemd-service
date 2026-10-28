@@ -194,8 +194,9 @@
 
 - name: Copy local files
   copy:
-    src: "{{ item.src }}"
+    src: "{{ item.src | default(omit) }}"
     dest: "{{ item.dest }}"
+    content: "{{ item.content | default(omit) }}"
     mode: "{{ item.mode | default('0644') }}"
     owner: "{{ item.owner | default('root') }}"
     group: "{{ item.group | default('root') }}"
