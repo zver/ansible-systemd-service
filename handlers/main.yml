@@ -17,5 +17,5 @@
   systemd:
     name: "{{ systemd_service_name }}.timer"
     daemon_reload: true
-    state: "{{ systemd_service_state }}"
+    state: "{{ 'restarted' if systemd_service_state in ['started', 'enabled'] else 'stopped' }}"
     enabled: "{{ true if systemd_service_state in ['started', 'enabled'] else false }}"
