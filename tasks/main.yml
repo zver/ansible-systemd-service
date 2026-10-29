@@ -50,7 +50,9 @@
     mode: "0644"
     owner: root
     group: root
-  notify: Restart systemd service {{ systemd_service_name }}
+  notify:
+    - Reload systemd
+    - Restart systemd service {{ systemd_service_name }}
 
 # Timer file
 - name: Create timer file for {{ systemd_service_name }}
