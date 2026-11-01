@@ -11,7 +11,9 @@
 # Service file
 - name: Create service file for {{ systemd_service_name }}
   when: systemd_service_content or systemd_service_file or systemd_service_template
-  notify: Restart systemd service {{ systemd_service_name }}
+  notify:
+    - Restart systemd service {{ systemd_service_name }}
+    - Start or stop systemd timer {{ systemd_service_name }}
   block:
     - name: Make service file with content
       when: systemd_service_content
