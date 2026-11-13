@@ -19,3 +19,7 @@
     daemon_reload: true
     state: "{{ 'restarted' if systemd_service_state in ['started', 'enabled'] else 'stopped' }}"
     enabled: "{{ true if systemd_service_state in ['started', 'enabled'] else false }}"
+  when: >
+    systemd_service_timer_file is defined or
+    systemd_service_timer_content is defined or
+    systemd_service_timer_template is defined
